@@ -49,7 +49,7 @@ async function handleImageUnderstandingRequest({ image, prompt }, progress = { p
   } catch (error) {
     // Ensure progress is updated even in case of failure
     progress.progress = 100;
-    logger.error("Error in image understanding with GPT-4V:", { error: error.message, image, prompt });
+    logger.error({ message: "Error in image understanding with GPT-4V", error: error.message, image, prompt });
     throw new Error("Failed to understand image.");
   }
 }
