@@ -26,9 +26,16 @@ class InternalServerError extends ApplicationError {
     }
 }
 
+class ApiCallError extends ApplicationError {
+    constructor(message, statusCode) {
+        super(message, statusCode, true);
+    }
+}
+
 module.exports = {
     ApplicationError,
     ValidationError,
     NotFoundError,
     InternalServerError,
+    ApiCallError,
 };
