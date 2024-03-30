@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "webpack": "^5.24.4",
-    "babel-loader": "^8.2.2",
+    "babel-loader": "^9.0.0",
     "@babel/core": "^7.13.10",
     "@babel/preset-env": "^7.13.12",
     "express-validator": "^6.9.2"
