@@ -26,6 +26,8 @@ app.use(streamingControl);
 // TODO: Apply 'apiStrategies' from config.json here
 
 // Middleware for progress tracking on specific routes
+// Middleware for progress tracking on specific routes
+// Initializes a progress object for image generation, understanding, and embedding requests.
 app.use((req, res, next) => {
     if (['/generate-image', '/understand-image', '/generate-embedding'].includes(req.path)) {
         req.progress = { progress: 0 };
