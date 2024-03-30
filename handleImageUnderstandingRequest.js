@@ -1,6 +1,4 @@
-const openai = require('./openai-api');
-const logger = require('./logger'); // Added for structured logging
-const { setCache, getCache } = require('../middleware/cache');
+// Imports removed as the function has been moved to middleware/requestHandlers.js
 
 /**
  * Handles image understanding requests using GPT-4 with Vision.
@@ -10,12 +8,14 @@ const { setCache, getCache } = require('../middleware/cache');
  * @param {Object} [progress] - Optional object to track the progress of the request.
  * @returns {Promise<Object>} - The result of the image understanding request.
  */
-async function handleImageUnderstandingRequest({ image, prompt }, progress = { progress: 0 }) {
+async function handleImageUnderstandingRequest({ image, understandingPrompt }, requestProgress = { progress: 0 }) {
   // Set initial progress
   progress.progress = 10;
 
   // Generate a cache key based on image and prompt
-  const cacheKey = `image-${image}-prompt-${prompt}`;
+  // Generate a unique cache key using the image and understanding prompt
+  // This key is used to cache and retrieve the response for repeated requests
+  const cacheKey = `image-${image}-prompt-${understandingPrompt}`;
   const cachedResponse = getCache(cacheKey);
   if (cachedResponse) {
     // If a cached response exists, update progress and return it
@@ -29,7 +29,8 @@ async function handleImageUnderstandingRequest({ image, prompt }, progress = { p
     
     const response = await openai.createCompletion({
       model: "gpt-4-1106-vision-preview", // Ensure this model identifier is up-to-date
-      prompt: prompt,
+      // The understanding prompt guides GPT-4's interpretation of the image
+      prompt: understandingPrompt,
       attachments: [
         {
           data: image, // Base64 encoded image or image URL
@@ -49,7 +50,9 @@ async function handleImageUnderstandingRequest({ image, prompt }, progress = { p
   } catch (error) {
     // Ensure progress is updated even in case of failure
     progress.progress = 100;
-    logger.error({ message: "Error in image understanding with GPT-4V", error: error.message, image, prompt });
+    // Log any errors encountered during the image understanding process
+    // This includes the error message along with the image and understanding prompt used
+    logger.error({ message: "Error in image understanding with GPT-4V", error: error.message, image, understandingPrompt });
     throw new Error("Failed to understand image.");
   }
 }
