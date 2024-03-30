@@ -13,6 +13,10 @@ const { secretKey } = require('../config.json').authentication;
  * @param {Object} res - The response object from Express.js.
  * @param {Function} next - The next middleware function in the stack.
  */
+function hasPermission(userPermissions, requiredPermissions) {
+    return requiredPermissions.every(rp => userPermissions.includes(rp));
+}
+
 function verifyToken(req, res, next) {
     // Extract the token from the Authorization header
     const token = req.headers['authorization']?.split(' ')[1];
@@ -38,6 +42,13 @@ function verifyToken(req, res, next) {
         if (err) {
             feedbackManager.gatherFeedback('Failed to authenticate token.');
             return res.status(401).send({ message: 'Unauthorized: Failed to authenticate token.' });
+        } else {
+            if (req.path.startsWith('/protected-route')) {
+                const requiredPermissions = ['read', 'write']; // Example permissions, adjust as necessary
+                if (!hasPermission(decoded.permissions, requiredPermissions)) {
+                    return res.status(403).send({ message: 'Forbidden: Insufficient permissions.' });
+                }
+            }
         }
 
         // If the token is close to expiration, issue a new one
