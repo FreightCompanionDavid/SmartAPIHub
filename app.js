@@ -6,6 +6,9 @@ const handleImageGenerationRequest = require('./handleImageGenerationRequest');
 const handleImageUnderstandingRequest = require('./handleImageUnderstandingRequest');
 const handleEmbeddingRequest = require('./handleEmbeddingRequest');
 const logger = require('./logger'); // Assuming logger.js setup is done
+const { logging } = require('../config.json');
+logger.setLevel(logging.level);
+logger.setFormat(logging.format);
 const { createDiscussion, getDiscussions } = require('./handleDiscussionsRequest');
 const { streamingControl } = require('./middleware/streamingControl');
 const errorHandler = require('./middleware/errorHandler');
@@ -18,6 +21,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Middleware for streaming control, applied globally or selectively based on requirements
 app.use(streamingControl);
+
+// Placeholder for future strategy-based middleware integration
+// TODO: Apply 'apiStrategies' from config.json here
 
 // Middleware for progress tracking on specific routes
 app.use((req, res, next) => {
