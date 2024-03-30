@@ -20,5 +20,17 @@
   "errorHandling": {
     "logErrors": true,
     "throwErrors": true
+  },
+  "authentication": {
+    "secretKey": "YOUR_SECRET_KEY_HERE",
+    "tokenExpiration": 3600
+  },
+  "logging": {
+    "level": "info",
+    "format": "text"
+  },
+  "apiStrategies": {
+    "rateLimiting": {},
+    "caching": {}
   }
 }
