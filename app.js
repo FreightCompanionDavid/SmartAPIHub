@@ -13,9 +13,19 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
+
+// Middleware for progress tracking
+app.use((req, res, next) => {
+    if (['/generate-image', '/understand-image', '/generate-embedding'].includes(req.path)) {
+        req.progress = { progress: 0 };
+    }
+    next();
+});
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/generate-image', [body('prompt').not().isEmpty().withMessage('Prompt is required').trim().escape()], async (req, res) => {
+    // Initialize progress tracking
+    req.progress = { progress: 0 }; // This line is redundant due to the new middleware and can be removed later if confirmed redundant.
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -34,6 +44,8 @@ app.post('/understand-image', [
     body('image').not().isEmpty().withMessage('Image is required').trim().escape(),
     body('prompt').not().isEmpty().withMessage('Prompt is required').trim().escape()
 ], async (req, res) => {
+    // Initialize progress tracking
+    req.progress = { progress: 0 }; // This line is redundant due to the new middleware and can be removed later if confirmed redundant.
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -52,6 +64,8 @@ app.post('/generate-embedding', [
     body('text').not().isEmpty().withMessage('Text is required').trim().escape(),
     body('model').optional().trim().escape()
 ], async (req, res) => {
+    // Initialize progress tracking
+    req.progress = { progress: 0 }; // This line is redundant due to the new middleware and can be removed later if confirmed redundant.
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
