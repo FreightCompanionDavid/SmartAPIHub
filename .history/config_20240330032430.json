@@ -1,0 +1,24 @@
+{
+  "openai": {
+    "apiKey": "YOUR_OPENAI_API_KEY_HERE",
+    "models": {
+      "imageGeneration": "dall-e-3",
+      "imageUnderstanding": "gpt-4-1106-vision-preview",
+      "textEmbedding": "text-embedding-3-large"
+    }
+  },
+  "apiSettings": {
+    "imageGeneration": {
+      "n": 1
+    },
+    "imageUnderstanding": {
+      "temperature": 0.5,
+      "max_tokens": 150
+    },
+    "textEmbedding": {}
+  },
+  "errorHandling": {
+    "logErrors": true,
+    "throwErrors": true
+  }
+}
