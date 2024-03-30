@@ -1,7 +1,8 @@
 const axios = require('axios');
-const { ApplicationError, InternalServerError } = require('./middleware/customErrors');
+const { ApplicationError, InternalServerError, ApiError } = require('./middleware/customErrors');
 const logger = require('./logger');
 const apiKey = process.env.OPENAI_API_KEY;
+const { calculatePerformanceMetrics } = require('./utils');
 
 const openai = {
     baseURL: 'https://api.openai.com/v1/',
@@ -26,6 +27,7 @@ const openai = {
      */
     async performOpenAIApiCall(path, data, retries = 3) {
         this.analyzeAndAdjustStrategy();
+        const performanceData = { startTime: Date.now(), attempts: 0, success: false };
         let attempt = 0;
         while (attempt < retries) {
             try {
@@ -38,9 +40,9 @@ const openai = {
                 const { delay, retries: adjustedRetries } = this.adjustRetryStrategy(error);
 
                 if (attempt >= adjustedRetries - 1) {
-                    throw new InternalServerError(`Failed API call to ${path}: ${error.response?.data?.error || error.message}`);
+                    throw new ApiError(`Failed API call to ${path}: ${error.response?.data?.error || error.message}`);
                 }
-                attempt++;
+                performanceData.attempts = attempt + 1;
                 await new Promise(resolve => setTimeout(resolve, delay)); // Wait before retrying
             }
         }

@@ -1,0 +1,108 @@
+swagger: '2.0'
+info:
+  title: SmartAPIHub API
+  description: API documentation for SmartAPIHub, providing logical controls for API calls that are self-improving in nature.
+  version: '1.0.0'
+  termsOfService: 'http://smartapihub.com/terms/'
+host: 'api.smartapihub.com'
+basePath: '/v1'
+schemes:
+  - https
+paths:
+  /images/generate:
+    post:
+      summary: Generates images based on textual descriptions.
+      description: Utilizes OpenAI's DALL-E 3 model to create images from textual descriptions.
+      parameters:
+        - in: body
+          name: body
+          description: Parameters for image generation
+          required: true
+          schema:
+            type: object
+            properties:
+              model:
+                type: string
+                description: The model to use for image generation.
+              prompt:
+                type: string
+                description: The textual description to generate the image from.
+              n:
+                type: integer
+                description: The number of images to generate.
+      responses:
+        200:
+          description: Successfully generated images.
+          schema:
+            type: object
+            properties:
+              images:
+                type: array
+                items:
+                  type: string
+                  description: Base64 encoded image.
+  /embeddings:
+    post:
+      summary: Generates embeddings from text.
+      description: Offers text embedding features to extract meaningful representations of text.
+      parameters:
+        - in: body
+          name: body
+          description: Parameters for generating embeddings
+          required: true
+          schema:
+            type: object
+            properties:
+              model:
+                type: string
+                description: The model to use for generating embeddings.
+              input:
+                type: string
+                description: The input text to generate embeddings for.
+      responses:
+        200:
+          description: Successfully generated embeddings.
+          schema:
+            type: object
+            properties:
+              embeddings:
+                type: array
+                items:
+                  type: number
+  /discussions:
+    post:
+      summary: Manages discussion creation.
+      description: Provides functionality for creating and retrieving discussions.
+      parameters:
+        - in: body
+          name: body
+          description: Parameters for creating a discussion
+          required: true
+          schema:
+            type: object
+            properties:
+              topic:
+                type: string
+                description: The topic of the discussion.
+              content:
+                type: string
+                description: The content of the discussion.
+      responses:
+        200:
+          description: Successfully created a discussion.
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The unique identifier of the discussion.
+              topic:
+                type: string
+              content:
+                type: string
+securityDefinitions:
+  JWT:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: JWT token used for authentication. Must be prefixed with "Bearer ".
