@@ -1,7 +1,11 @@
 const logger = require('../logger');
+const feedbackManager = require('./feedbackManager');
 
 function errorHandler(err, req, res, next) {
     logger.error(err);
+
+    // Gather feedback on error
+    feedbackManager.gatherFeedback(`Error handled: ${err.message}`);
 
     if (err.isOperational) {
         res.status(err.statusCode || 400).json({
