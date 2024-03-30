@@ -1,3 +1,4 @@
+const feedbackManager = require('./feedbackManager');
 const jwt = require('jsonwebtoken');
 const { secretKey } = require('../config.json').authentication;
 
@@ -11,6 +12,9 @@ function verifyToken(req, res, next) {
     if (revokedTokens.includes(token)) {
         return res.status(401).send({ message: 'Unauthorized: Token revoked' });
     }
+
+    // Gather feedback for authentication process
+    feedbackManager.gatherFeedback('Placeholder feedback message for authentication process.');
 
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
