@@ -2,19 +2,20 @@ const jwt = require('jsonwebtoken');
 const { secretKey } = require('../config.json').authentication;
 
 function verifyToken(req, res, next) {
-    const token = req.headers['authorization']?.split(' ')[1];
+    const { authorization } = req.headers;
+    const token = authorization?.split(' ')[1];
     if (!token) {
-        return res.status(403).send({ message: 'No token provided!' });
+        return res.status(403).send({ message: 'Access Denied: No authentication token provided.' });
     }
     // Simulated list of revoked tokens for demonstration
     const revokedTokens = ['revokedToken123'];
     if (revokedTokens.includes(token)) {
-        return res.status(401).send({ message: 'Unauthorized: Token revoked' });
+        return res.status(401).send({ message: 'Unauthorized: The provided token has been revoked.' });
     }
 
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
-            return res.status(401).send({ message: 'Unauthorized!' });
+            return res.status(401).send({ message: 'Unauthorized: Failed to authenticate token.' });
         }
 
         // Check if the token is close to expiration and refresh it
