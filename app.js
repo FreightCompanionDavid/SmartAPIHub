@@ -7,11 +7,13 @@ const handleImageUnderstandingRequest = require('./handleImageUnderstandingReque
 const handleEmbeddingRequest = require('./handleEmbeddingRequest');
 const logger = require('./logger'); // Assuming logger.js setup is done
 const { createDiscussion, getDiscussions } = require('./handleDiscussionsRequest');
+const { streamingControl } = require('./middleware/streamingControl');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
+app.use(streamingControl);
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/generate-image', [body('prompt').not().isEmpty().withMessage('Prompt is required').trim().escape()], async (req, res) => {
@@ -33,6 +35,20 @@ app.post('/understand-image', [
     body('image').not().isEmpty().withMessage('Image is required').trim().escape(),
     body('prompt').not().isEmpty().withMessage('Prompt is required').trim().escape()
 ], async (req, res) => {
+    // Check for streaming control parameters in the request
+    if (req.query.action === 'pause') {
+        req.streamControl.pause();
+        return res.send({ message: 'Stream paused.' });
+    } else if (req.query.action === 'resume') {
+        req.streamControl.resume();
+        return res.send({ message: 'Stream resumed.' });
+    }
+
+    // Monitor progress if requested
+    if (req.headers['monitor-progress']) {
+        const progress = req.streamControl.monitorProgress();
+        return res.send({ progress });
+    }
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -51,6 +67,20 @@ app.post('/generate-embedding', [
     body('text').not().isEmpty().withMessage('Text is required').trim().escape(),
     body('model').optional().trim().escape()
 ], async (req, res) => {
+    // Check for streaming control parameters in the request
+    if (req.query.action === 'pause') {
+        req.streamControl.pause();
+        return res.send({ message: 'Stream paused.' });
+    } else if (req.query.action === 'resume') {
+        req.streamControl.resume();
+        return res.send({ message: 'Stream resumed.' });
+    }
+
+    // Monitor progress if requested
+    if (req.headers['monitor-progress']) {
+        const progress = req.streamControl.monitorProgress();
+        return res.send({ progress });
+    }
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
