@@ -2,34 +2,50 @@ const logger = require('../logger');
 const feedbackManager = require('./feedbackManager');
 const { ApplicationError, ApiError } = require('./customErrors');
 
-// This function handles errors that occur during API operations. It distinguishes between operational errors (expected errors that are handled gracefully) and non-operational errors (unexpected errors that indicate a problem in the code).
+/**
+ * Centralized error handler that distinguishes between operational and non-operational errors,
+ * logs errors for internal review, gathers feedback for continuous improvement,
+ * and communicates appropriate messages to the client.
+ */
 function errorHandler(err, req, res, next) {
-    // Log the error for internal tracking
-    logger.error(`${err.name}: ${err.message} (Status code: ${err.statusCode})`);
+    // Log the error with detailed information for internal review
+    logger.error(`${err.name}: ${err.message} (Status code: ${err.statusCode})`, {
+        error: err,
+        context: { url: req.url, method: req.method }
+    });
 
-    // Gather feedback on the error to improve future error handling
-    feedbackManager.gatherFeedback(`Error handled: ${err.message}`);
+    // Gather feedback on the error to aid in future improvements
+    feedbackManager.gatherFeedback(`Error encountered: ${err.message}`, {
+        type: err.name,
+        statusCode: err.statusCode
+    });
 
-    // Initial check to determine if the error is operational (expected) or non-operational (unexpected)
     if (err instanceof ApiError) {
-        // Specifically handles errors related to API operations, providing a clear and actionable message to the client.
+        // Specifically handle API-related errors with clear, actionable advice for the client
         res.status(err.statusCode).json({
             success: false,
-            message: `API Error: ${err.message}. Please check the documentation or contact support if the problem persists.`,
+            message: `API Error: ${err.message}. Please review the request or contact support if the issue persists.`,
         });
     } else if (err instanceof ApplicationError) {
-        // Handles known application errors, ensuring that the client receives a specific message that can help in understanding the issue.
+        // Handle application errors gracefully, providing a message that aids in understanding the issue
         res.status(err.statusCode).json({
             success: false,
-            message: `Application Error: ${err.message}. We are working to resolve this issue.`,
+            message: `Application Error: ${err.message}. Efforts are underway to resolve this issue.`,
         });
     } else {
-        // This block handles unknown or non-operational errors. Such errors are logged with detailed information for internal review and debugging.
-        // Clients are provided with a generic message to ensure that sensitive details are not exposed.
-        logger.error(`Non-operational error: ${err.stack}`);
+        // Handle all other errors as non-operational, logging detailed information for internal debugging
+        // and providing a generic message to the client for security reasons
+        logger.error(`Unexpected error: ${err.stack}`, {
+            context: { body: req.body, query: req.query }
+        });
+
+        const responseMessage = process.env.NODE_ENV === 'development' ?
+            `Unexpected error occurred: ${err.message}. Debugging information provided for development mode.` :
+            'An unexpected error occurred. We apologize for the inconvenience. Please try again later.';
+        
         res.status(500).json({
             success: false,
-            message: 'An unexpected error occurred. We apologize for the inconvenience. Please try again later or contact support.',
+            message: responseMessage,
         });
     }
 }

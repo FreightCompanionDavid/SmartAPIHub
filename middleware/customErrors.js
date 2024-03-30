@@ -3,10 +3,10 @@
 class ApplicationError extends Error {
     constructor(message, statusCode, isOperational) {
         super(message);
-        this.name = this.constructor.name;
-        this.statusCode = statusCode;
-        this.isOperational = isOperational;
-        Error.captureStackTrace(this, this.constructor);
+        this.name = this.constructor.name; // Assign the class name as the error name
+        this.statusCode = statusCode; // HTTP status code appropriate for this error
+        this.isOperational = isOperational; // Flag to denote if the error is operational
+        Error.captureStackTrace(this, this.constructor); // Capture the stack trace
     }
 }
 
@@ -14,7 +14,7 @@ class ApplicationError extends Error {
 // This typically results in a 400 Bad Request response
 class ValidationError extends ApplicationError {
     constructor(message) {
-        super(message, 400, true);
+        super(message, 400, true); // 400 Bad Request
     }
 }
 
@@ -22,7 +22,7 @@ class ValidationError extends ApplicationError {
 // This typically results in a 404 Not Found response
 class NotFoundError extends ApplicationError {
     constructor(message) {
-        super(message, 404, true);
+        super(message, 404, true); // 404 Not Found
     }
 }
 
@@ -30,16 +30,21 @@ class NotFoundError extends ApplicationError {
 // This typically results in a 500 Internal Server Error response
 class InternalServerError extends ApplicationError {
     constructor(message) {
-        super(message, 500, false);
+        super(message, 500, false); // 500 Internal Server Error
     }
 }
 
 // Represents a generic error related to the API's operation
 // The statusCode can be customized, defaulting to 503 Service Unavailable
 class ApiError extends ApplicationError {
+    /**
+     * Represents an error from an API call.
+     * @param {string} message The error message.
+     * @param {number} [statusCode=503] The HTTP status code for the error.
+     * @param {boolean} [isOperational=true] Indicates if the error is operational.
+     */
     constructor(message, statusCode = 503, isOperational = true) {
-        super(message, statusCode, isOperational);
-        this.name = this.constructor.name;
+        super(message, statusCode, isOperational); // 503 Service Unavailable by default
     }
 }
 
