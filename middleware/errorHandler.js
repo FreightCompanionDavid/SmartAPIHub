@@ -2,42 +2,51 @@ const logger = require('../logger');
 const feedbackManager = require('./feedbackManager');
 const { ApplicationError, ApiError } = require('./customErrors');
 
-// Centralized error handler for SmartAPIHub. It logs errors and sends user-friendly error messages to the client.
+/**
+ * Centralized error handler that distinguishes between operational and non-operational errors,
+ * logs errors for internal review, gathers feedback for continuous improvement,
+ * and communicates appropriate messages to the client.
+ */
 function errorHandler(err, req, res, next) {
-    // Log the error
-    logger.error(`${err.name}: ${err.message} (Status code: ${err.statusCode})`);
+    // Log the error with detailed information for internal review
+    logger.error(`${err.name}: ${err.message} (Status code: ${err.statusCode})`, {
+        error: err,
+        context: { url: req.url, method: req.method }
+    });
 
-    // Gather feedback on error
-    feedbackManager.gatherFeedback(`Error handled: ${err.message}`);
+    // Gather feedback on the error to aid in future improvements
+    feedbackManager.gatherFeedback(`Error encountered: ${err.message}`, {
+        type: err.name,
+        statusCode: err.statusCode
+    });
 
-    // Check if the error is an instance of ApplicationError (or subclasses thereof)
     if (err instanceof ApiError) {
-        // Handle API errors (operational)
+        // Specifically handle API-related errors with clear, actionable advice for the client
         res.status(err.statusCode).json({
             success: false,
-            message: err.message,
+            message: `API Error: ${err.message}. Please review the request or contact support if the issue persists.`,
         });
     } else if (err instanceof ApplicationError) {
-        // Handle known application errors (operational)
+        // Handle application errors gracefully, providing a message that aids in understanding the issue
         res.status(err.statusCode).json({
             success: false,
-            message: err.message,
+            message: `Application Error: ${err.message}. Efforts are underway to resolve this issue.`,
         });
     } else {
-        // Handle unknown or non-operational errors
-        // Log detailed error information for non-operational errors
-        logger.error(`Non-operational error: ${err.stack}`);
-        if (process.env.NODE_ENV === 'development') {
-            res.status(500).json({
-                success: false,
-                message: `An unexpected error occurred. Please try again later. Error: ${err.message}`,
-            });
-        } else {
-            res.status(500).json({
-                success: false,
-                message: 'An unexpected error occurred. Please try again later.',
-            });
-        }
+        // Handle all other errors as non-operational, logging detailed information for internal debugging
+        // and providing a generic message to the client for security reasons
+        logger.error(`Unexpected error: ${err.stack}`, {
+            context: { body: req.body, query: req.query }
+        });
+
+        const responseMessage = process.env.NODE_ENV === 'development' ?
+            `Unexpected error occurred: ${err.message}. Debugging information provided for development mode.` :
+            'An unexpected error occurred. We apologize for the inconvenience. Please try again later.';
+        
+        res.status(500).json({
+            success: false,
+            message: responseMessage,
+        });
     }
 }
 

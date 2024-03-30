@@ -79,6 +79,13 @@ const openai = {
      * Analyzes outcomes of API calls and adjusts retry strategy accordingly.
      * This is a placeholder for potential future implementations.
      */
+    /**
+     * Analyzes outcomes of API calls and adjusts retry strategy accordingly.
+     * This method is intended to be a placeholder for future implementations where
+     * the strategy for API calls can be dynamically adjusted based on historical
+     * performance data. This could include adjusting the delay between retries or
+     * the number of retry attempts based on the error type or frequency.
+     */
     analyzeAndAdjustStrategy() {
         logger.log('Analyzing API call outcomes and adjusting strategy...');
     },
@@ -87,6 +94,14 @@ const openai = {
      * Adjusts the retry strategy based on the nature of the error encountered during an API call.
      * @param {Object} error The error encountered.
      * @returns {Object} The adjusted delay and retries count.
+     */
+    /**
+     * Adjusts the retry strategy based on the nature of the error encountered during an API call.
+     * This method dynamically adjusts the delay before retrying and the total number of retries
+     * based on the specific error encountered. For rate limit errors, a longer delay is set to
+     * respect the API's rate limits. For server errors, a moderate delay is used. For all other
+     * errors, a default retry strategy is applied. This approach helps in managing API call
+     * failures more effectively by adapting to different error conditions.
      */
     adjustRetryStrategy(error) {
         const isRateLimitError = error.response && error.response.status === 429;
