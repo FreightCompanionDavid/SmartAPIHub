@@ -8,7 +8,8 @@ const { verifyToken } = require('./middleware/auth'); // Importing auth middlewa
  * @param {string} model The model to use for generating embeddings. Defaults to "text-embedding-3-large".
  * @returns {Promise<Object>} The embedding result.
  */
-async function handleEmbeddingRequest(req, res, model = "text-embedding-3-large") {
+async function handleEmbeddingRequest(req, res, progress, model = "text-embedding-3-large") {
+    progress.progress = 10; // Initial progress after starting the request
     verifyToken(req, res, () => {}); // Applying auth middleware
     const text = req.body.text;
     // Input validation for text parameter
@@ -17,13 +18,16 @@ async function handleEmbeddingRequest(req, res, model = "text-embedding-3-large"
         return res.status(400).send({ message: 'Validation Error: Text parameter must be a non-empty string and at least 10 characters long.' });
     }
     try {
+        progress.progress = 30; // Progress before sending the request
         const response = await openai.createEmbedding({
             model: model,
             input: text,
         });
 
+        progress.progress = 100; // Final progress after receiving the response
         return { success: true, embedding: response.data };
     } catch (error) {
+        progress.progress = 100; // Update progress even in case of failure
         logger.error("Error in generating text embeddings:", { error: error.message, text, model });
         throw new Error("Failed to generate embedding. Ensure your request is properly authenticated and the text parameter meets the required criteria.");
     }
