@@ -25,3 +25,18 @@ We welcome contributions from the community! If you're interested in improving S
 
 ## License
 This project is open-source and available under the Creative Commons Attribution-NonCommercial 4.0 International License. Contributions are subject to the same license.
+
+## Documentation
+SmartAPIHub provides comprehensive documentation to help you get started and make the most out of our API. The documentation includes detailed tutorials, API reference, and examples.
+
+### Quick Start Tutorial
+1. Clone the repository to your local machine.
+2. Ensure that Node.js and npm are installed on your system.
+3. Run `npm install` in the project directory to install all required dependencies.
+4. Create an `.env` file in the root of the project and add your OpenAI API key as `OPENAI_API_KEY=your_api_key_here`.
+5. Start the server by running `npm start` or `node app.js` in the terminal.
+
+This quick tutorial covers the basic setup. For more detailed instructions and use cases, visit our [MkDocs-generated documentation website](#).
+
+### API Reference
+For a detailed understanding of SmartAPIHub's API capabilities, please explore the `docs/api_reference.yaml` file. It offers comprehensive information on the API endpoints, parameters, and responses.
