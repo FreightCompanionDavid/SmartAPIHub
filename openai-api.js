@@ -17,7 +17,14 @@ const openai = {
      * @param {number} retries The number of retry attempts.
      * @returns {Promise<Object>} The data received in response to the API call.
      */
-    async apiCall(path, data, retries = 3) {
+    /**
+     * Performs an API call to OpenAI, handling retries and logging.
+     * @param {string} path The endpoint path.
+     * @param {Object} data The data to be sent in the API request.
+     * @param {number} retries The number of retry attempts.
+     * @returns {Promise<Object>} The data received in response to the API call.
+     */
+    async performOpenAIApiCall(path, data, retries = 3) {
         this.analyzeAndAdjustStrategy();
         let attempt = 0;
         while (attempt < retries) {
@@ -45,7 +52,7 @@ const openai = {
      * @returns {Promise<Object>} The image creation result.
      */
     async createImage({ model, prompt, n }) {
-        return this.apiCall('images/generate', { model, prompt, n });
+        return this.performOpenAIApiCall('images/generate', { model, prompt, n });
     },
 
     /**
@@ -54,7 +61,7 @@ const openai = {
      * @returns {Promise<Object>} The completion result.
      */
     async createCompletion({ model, prompt, attachments, temperature, max_tokens }) {
-        return this.apiCall('completions', { model, prompt, attachments, temperature, max_tokens });
+        return this.performOpenAIApiCall('completions', { model, prompt, attachments, temperature, max_tokens });
     },
 
     /**
@@ -63,7 +70,7 @@ const openai = {
      * @returns {Promise<Object>} The embedding result.
      */
     async createEmbedding({ model, input }) {
-        return this.apiCall('embeddings', { model, input });
+        return this.performOpenAIApiCall('embeddings', { model, input });
     },
 
     /**
