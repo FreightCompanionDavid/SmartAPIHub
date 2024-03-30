@@ -54,7 +54,7 @@ function verifyToken(req, res, next) {
         // If the token is close to expiration, issue a new one
         const currentTime = Math.floor(Date.now() / 1000);
         if (decoded.exp - currentTime < 300) { // If less than 5 minutes to expiration
-            const newToken = jwt.sign({ id: decoded.id }, secretKey, { expiresIn: '1h' });
+            const newToken = jwt.sign({ id: decoded.id }, secretKey, { expiresIn: `${tokenExpiration}s` });
             res.setHeader('x-refresh-token', newToken);
             feedbackManager.gatherFeedback('Token refreshed due to impending expiration.');
         }
