@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const { secretKey } = require('../config.json').authentication;
 
 function verifyToken(req, res, next) {
+    // For WebSocket or similar persistent connection technologies, consider implementing a mechanism to maintain or periodically re-validate authentication state here.
     const token = req.headers['authorization']?.split(' ')[1];
     if (!token) {
         return res.status(403).send({ message: 'No token provided!' });
