@@ -8,8 +8,10 @@ const logger = require('./logger'); // Added for structured logging
  * @param {string} params.prompt - The prompt to guide the understanding.
  * @returns {Promise<Object>} - The result of the image understanding request.
  */
-async function handleImageUnderstandingRequest({ image, prompt }) {
+async function handleImageUnderstandingRequest({ image, prompt }, progress) {
+  progress.progress = 10; // Initial progress after starting the request
   try {
+    progress.progress = 30; // Progress before sending the request
     const response = await openai.createCompletion({
       model: "gpt-4-1106-vision-preview", // Ensure this model identifier is up-to-date
       prompt: prompt,
@@ -23,8 +25,10 @@ async function handleImageUnderstandingRequest({ image, prompt }) {
       max_tokens: 150,
     });
 
+    progress.progress = 100; // Final progress after receiving the response
     return { success: true, response: response.choices[0].text.trim() };
   } catch (error) {
+    progress.progress = 100; // Update progress even in case of failure
     logger.error("Error in image understanding with GPT-4V:", { error: error.message, image, prompt }); // Enhanced error logging with more context
     throw new Error("Failed to understand image.");
   }
