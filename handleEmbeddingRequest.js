@@ -45,7 +45,7 @@ async function handleEmbeddingRequest(req, res, progress, model = "text-embeddin
         res.status(200).send({ success: true, embedding: response.data });
     } catch (error) {
         progress.progress = 100; // Ensure progress is updated in case of an error
-        logger.error("Failed to generate text embeddings due to an error:", { error: error.message, text, model });
+        logger.error({message: "Failed to generate text embeddings due to an error", error: error.message, text, model});
 
         // Respond with an error message
         res.status(500).send({ message: "Failed to generate text embeddings. Please ensure your request is properly authenticated and the text parameter meets the required criteria." });

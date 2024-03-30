@@ -18,7 +18,7 @@ async function handleImageGenerationRequest(prompt, progress) {
         return { success: true, images: response.images };
     } catch (error) {
         progress.progress = 100; // Update progress even in case of failure
-        logger.error("Error in image generation with DALL·E:", { error: error.message, prompt }); // Enhanced error logging with more context
+        logger.error({message: "Error in image generation with DALL·E", error: error.message, prompt}); // Structured logging format
         throw new Error("Failed to generate image.");
     }
 }
