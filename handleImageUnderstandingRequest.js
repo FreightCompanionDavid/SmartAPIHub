@@ -1,5 +1,6 @@
 const openai = require('./openai-api');
 const logger = require('./logger'); // Added for structured logging
+const { setCache, getCache } = require('../middleware/cache');
 
 /**
  * Handles image understanding requests using GPT-4 with Vision.
@@ -9,6 +10,11 @@ const logger = require('./logger'); // Added for structured logging
  * @returns {Promise<Object>} - The result of the image understanding request.
  */
 async function handleImageUnderstandingRequest({ image, prompt }) {
+  const cacheKey = `image-${image}-prompt-${prompt}`;
+  const cachedResponse = getCache(cacheKey);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
   try {
     const response = await openai.createCompletion({
       model: "gpt-4-1106-vision-preview", // Ensure this model identifier is up-to-date
@@ -23,6 +29,7 @@ async function handleImageUnderstandingRequest({ image, prompt }) {
       max_tokens: 150,
     });
 
+    setCache(cacheKey, { success: true, response: response.choices[0].text.trim() });
     return { success: true, response: response.choices[0].text.trim() };
   } catch (error) {
     logger.error("Error in image understanding with GPT-4V:", { error: error.message, image, prompt }); // Enhanced error logging with more context
