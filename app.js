@@ -7,6 +7,7 @@ const handleImageUnderstandingRequest = require('./handleImageUnderstandingReque
 const handleEmbeddingRequest = require('./handleEmbeddingRequest');
 const logger = require('./logger'); // Assuming logger.js setup is done
 const { createDiscussion, getDiscussions } = require('./handleDiscussionsRequest');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -67,15 +68,7 @@ app.post('/generate-embedding', [
 });
 
 // Centralized error handler middleware
-app.use((err, req, res, next) => {
-    logger.error(err.message);
-    const acceptHeader = req.headers.accept;
-    if (acceptHeader && acceptHeader.includes('application/xml')) {
-        res.status(500).type('application/xml').send(`<error><message>An unexpected error occurred.</message></error>`);
-    } else {
-        res.status(500).json({ error: "An unexpected error occurred." });
-    }
-});
+app.use(errorHandler);
 
 app.get('/health', (req, res) => res.send('OK'));
 
