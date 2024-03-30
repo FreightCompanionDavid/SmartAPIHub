@@ -13,6 +13,10 @@ const { secretKey } = require('../config.json').authentication;
  * @param {Object} res - The response object from Express.js.
  * @param {Function} next - The next middleware function in the stack.
  */
+function hasPermission(userPermissions, requiredPermissions) {
+    return requiredPermissions.every(rp => userPermissions.includes(rp));
+}
+
 function verifyToken(req, res, next) {
     // Extract the token from the Authorization header
     const token = req.headers['authorization']?.split(' ')[1];
@@ -30,9 +34,21 @@ function verifyToken(req, res, next) {
     }
 
     jwt.verify(token, secretKey, (err, decoded) => {
+        // Check for role in the decoded token
+        if (!decoded.role) {
+            feedbackManager.gatherFeedback('No role present in token.');
+            return res.status(403).send({ message: 'Access Denied: No role present in token.' });
+        }
         if (err) {
             feedbackManager.gatherFeedback('Failed to authenticate token.');
             return res.status(401).send({ message: 'Unauthorized: Failed to authenticate token.' });
+        } else {
+            if (req.path.startsWith('/protected-route')) {
+                const requiredPermissions = ['read', 'write']; // Example permissions, adjust as necessary
+                if (!hasPermission(decoded.permissions, requiredPermissions)) {
+                    return res.status(403).send({ message: 'Forbidden: Insufficient permissions.' });
+                }
+            }
         }
 
         // If the token is close to expiration, issue a new one
@@ -67,4 +83,22 @@ function checkPermissions(requiredPermissions) {
     };
 }
 
-module.exports = { verifyToken, checkPermissions };
+/**
+ * Middleware to require a specific role or roles for accessing a route.
+ * @param {string|Array<string>} requiredRoles - The required role or roles.
+ * @returns {Function} - The middleware function.
+ */
+function requireRole(requiredRoles) {
+    return (req, res, next) => {
+        verifyToken(req, res, () => {
+            const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
+            if (!roles.includes(req.user.role)) {
+                feedbackManager.gatherFeedback('User does not have the required role.');
+                return res.status(403).send({ message: 'Forbidden: User does not have the required role.' });
+            }
+            next();
+        });
+    };
+}
+
+module.exports = { verifyToken, checkPermissions, requireRole };
