@@ -1,7 +1,9 @@
 const winston = require('winston');
 
+const logLevel = process.env.LOG_LEVEL || 'info';
+
 const logger = winston.createLogger({
-    level: 'info',
+    level: logLevel,
     format: winston.format.json(),
     defaultMeta: { service: 'user-service' },
     transports: [
