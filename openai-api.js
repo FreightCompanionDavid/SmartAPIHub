@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { InternalServerError } = require('./middleware/customErrors');
 const apiKey = process.env.OPENAI_API_KEY;
 
 const openai = {
@@ -9,6 +10,7 @@ const openai = {
     },
 
     async apiCall(path, data, retries = 3) {
+        this.analyzeAndAdjustStrategy();
         let attempt = 0;
         while (attempt < retries) {
             try {
@@ -20,7 +22,7 @@ const openai = {
                 return response.data;
             } catch (error) {
                 console.error(`Error calling API: ${error.response?.data?.error || error.message}`, { path, data, attempt });
-                if (attempt === retries - 1) throw new Error("A more descriptive error based on the context.");
+                if (attempt === retries - 1) throw new InternalServerError(`Failed API call to ${path}: ${error.response?.data?.error || error.message}`, 500, false);
                 attempt++;
                 await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
             }
@@ -37,6 +39,12 @@ const openai = {
 
     async createEmbedding({ model, input }) {
         return this.apiCall('embeddings', { model, input });
+    },
+
+    analyzeAndAdjustStrategy() {
+        // Placeholder for analyzing API call outcomes
+        // Adjust the retries parameter based on analysis
+        console.log('Analyzing API call outcomes and adjusting strategy...');
     },
 };
 

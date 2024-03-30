@@ -7,6 +7,7 @@ const handleImageUnderstandingRequest = require('./handleImageUnderstandingReque
 const handleEmbeddingRequest = require('./handleEmbeddingRequest');
 const logger = require('./logger'); // Assuming logger.js setup is done
 const { createDiscussion, getDiscussions } = require('./handleDiscussionsRequest');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -35,7 +36,7 @@ app.post('/generate-image', [body('prompt').not().isEmpty().withMessage('Prompt 
         res.send(result);
     } catch (error) {
         logger.error("Error in image generation request:", { error: error.message, prompt: req.body.prompt });
-        res.status(500).send({ error: "An unexpected error occurred." });
+        res.status(500).send({ error: "Failed to generate image due to an internal server error." });
     }
 });
 
@@ -55,7 +56,7 @@ app.post('/understand-image', [
         res.send(result);
     } catch (error) {
         logger.error("Error in image understanding request:", { error: error.message, image: req.body.image, prompt: req.body.prompt });
-        res.status(500).send({ error: "An unexpected error occurred." });
+        res.status(500).send({ error: "Failed to understand image due to an internal server error." });
     }
 });
 
@@ -76,15 +77,12 @@ app.post('/generate-embedding', [
         res.send(result);
     } catch (error) {
         logger.error("Error in embedding request:", { error: error.message, text: req.body.text, model: req.body.model });
-        res.status(500).send({ error: "An unexpected error occurred." });
+        res.status(500).send({ error: "Failed to generate embedding due to an internal server error." });
     }
 });
 
 // Centralized error handler middleware
-app.use((err, req, res, next) => {
-    logger.error(err.message);
-    res.status(500).json({ error: "An unexpected error occurred." });
-});
+app.use(errorHandler);
 
 app.get('/health', (req, res) => res.send('OK'));
 
@@ -103,7 +101,7 @@ app.post('/discussions/create', [
         res.send(result);
     } catch (error) {
         logger.error("Error in creating discussion:", { error: error.message, author: req.body.author, content: req.body.content });
-        res.status(500).send({ error: "An unexpected error occurred." });
+        res.status(500).send({ error: "Failed to process discussion request due to an internal server error." });
     }
 });
 
