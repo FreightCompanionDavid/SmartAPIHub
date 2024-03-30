@@ -22,9 +22,10 @@ const openai = {
                 return response.data;
             } catch (error) {
                 console.error(`Error calling API: ${error.response?.data?.error || error.message}`, { path, data, attempt });
-                if (attempt === retries - 1) throw new InternalServerError(`Failed API call to ${path}: ${error.response?.data?.error || error.message}`, 500, false);
+                const { delay, retries: adjustedRetries } = this.adjustRetryStrategy(error);
+                if (attempt >= adjustedRetries - 1) throw new InternalServerError(`Failed API call to ${path}: ${error.response?.data?.error || error.message}`, 500, false);
                 attempt++;
-                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
+                await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
     },
@@ -46,6 +47,20 @@ const openai = {
         // Adjust the retries parameter based on analysis
         console.log('Analyzing API call outcomes and adjusting strategy...');
     },
+
+    adjustRetryStrategy(error) {
+        // Analyze the error and return adjusted delay and retry count
+        const isRateLimitError = error.response && error.response.status === 429;
+        const isServerError = error.response && error.response.status >= 500;
+
+        if (isRateLimitError) {
+            return { delay: 60 * 1000, retries: 1 };
+        } else if (isServerError) {
+            return { delay: 30 * 1000, retries: 2 };
+        } else {
+            return { delay: 1000, retries: 3 };
+        }
+    }
 };
 
 module.exports = openai;
