@@ -62,9 +62,20 @@ async function saveGeneratedImages(images, directoryPath) {
   return savedImagePaths.filter(Boolean);
 }
 
+/**
+ * Calculates the percentage completion based on the current step and total steps.
+ * @param {number} currentStep - The current step number.
+ * @param {number} totalSteps - The total number of steps.
+ * @returns {number} The percentage completion.
+ */
+function calculateProgress(currentStep, totalSteps) {
+  return Math.min(Math.max((currentStep / totalSteps) * 100, 0), 100);
+}
+
 module.exports = {
   convertImageToBase64,
   validateText,
   logRequest,
   saveGeneratedImages,
+  calculateProgress,
 };
