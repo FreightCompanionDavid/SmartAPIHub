@@ -9,6 +9,18 @@ SmartAPIHub is designed to revolutionize the way applications interact with APIs
 - **Text Embedding Capabilities**: Offers text embedding features to extract meaningful representations of text.
 - **Configurable API Settings and Error Handling**: Provides customizable settings for API usage and robust error handling mechanisms as outlined in the `config.json`.
 
+## Documentation
+SmartAPIHub provides comprehensive documentation to help you get started and make the most out of our API. The documentation includes detailed tutorials, API reference, and examples. To access the documentation, visit our [MkDocs-generated documentation website](#). If you wish to contribute to the documentation, please follow the standard contribution guidelines and submit your changes via a pull request.
+
+## Code Structure and Comments
+The SmartAPIHub codebase is organized into modules to ensure clarity and maintainability. We emphasize the importance of meaningful comments and variable names to make the code more understandable and easier to navigate. Contributors are encouraged to maintain this structure and clarity when making changes or adding new features.
+
+## Self-Improvement Mechanism
+SmartAPIHub employs a self-improvement mechanism that evaluates the performance of API calls using metrics such as response time and accuracy. Based on these metrics, the platform adapts its strategies to optimize API call performance. Contributors are encouraged to suggest improvements to this mechanism.
+
+## Testing Framework
+Our project uses a combination of unit and integration testing to ensure the reliability of the SmartAPIHub platform. Examples of test cases and instructions for running tests are provided in the `tests` directory. Contributors are encouraged to write and run tests when making changes to the codebase.
+
 ## Setup Instructions
 1. Clone the repository to your local machine.
 2. Ensure that Node.js and npm are installed on your system.
