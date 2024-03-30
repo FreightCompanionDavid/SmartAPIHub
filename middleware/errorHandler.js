@@ -1,6 +1,6 @@
 const logger = require('../logger');
 const feedbackManager = require('./feedbackManager');
-const { ApplicationError } = require('./customErrors');
+const { ApplicationError, ApiError } = require('./customErrors');
 
 function errorHandler(err, req, res, next) {
     // Log the error
@@ -10,7 +10,13 @@ function errorHandler(err, req, res, next) {
     feedbackManager.gatherFeedback(`Error handled: ${err.message}`);
 
     // Check if the error is an instance of ApplicationError (or subclasses thereof)
-    if (err instanceof ApplicationError) {
+    if (err instanceof ApiError) {
+        // Handle API errors (operational)
+        res.status(err.statusCode).json({
+            success: false,
+            message: err.message,
+        });
+    } else if (err instanceof ApplicationError) {
         // Handle known application errors (operational)
         res.status(err.statusCode).json({
             success: false,

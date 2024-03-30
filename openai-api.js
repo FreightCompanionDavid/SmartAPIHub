@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { ApplicationError, InternalServerError } = require('./middleware/customErrors');
+const { ApplicationError, InternalServerError, ApiError } = require('./middleware/customErrors');
 const logger = require('./logger');
 const apiKey = process.env.OPENAI_API_KEY;
 const { calculatePerformanceMetrics } = require('./utils');
@@ -33,7 +33,7 @@ const openai = {
                 const { delay, retries: adjustedRetries } = this.adjustRetryStrategy(error);
 
                 if (attempt >= adjustedRetries - 1) {
-                    throw new InternalServerError(`Failed API call to ${path}: ${error.response?.data?.error || error.message}`);
+                    throw new ApiError(`Failed API call to ${path}: ${error.response?.data?.error || error.message}`);
                 }
                 performanceData.attempts = attempt + 1;
                 await new Promise(resolve => setTimeout(resolve, delay)); // Wait before retrying
