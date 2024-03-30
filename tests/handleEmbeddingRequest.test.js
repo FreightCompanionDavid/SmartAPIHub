@@ -65,4 +65,30 @@ describe('handleEmbeddingRequest', () => {
       expect(res.send).toHaveBeenCalledWith({ message: 'No token provided!' });
     });
   });
+
+  it('handles invalid model parameters error', async () => {
+    const req = { body: { text: 'Valid text for testing with invalid model parameters' }, headers: { authorization: 'Bearer validToken' } };
+    const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+    openai.createEmbedding.mockRejectedValue(new Error('Invalid model parameters'));
+    jwt.verify.mockImplementation((token, secret, callback) => callback(null, { id: 'userId' }));
+
+    await handleEmbeddingRequest(req, res);
+
+    expect(logger.error).toHaveBeenCalledWith("Error in generating text embeddings due to invalid model parameters:", expect.anything());
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.send).toHaveBeenCalledWith({ message: 'Invalid model parameters provided.' });
+  });
+
+  it('handles network issues when calling OpenAI API', async () => {
+    const req = { body: { text: 'Valid text for testing but network fails' }, headers: { authorization: 'Bearer validToken' } };
+    const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+    openai.createEmbedding.mockRejectedValue(new Error('Network error'));
+    jwt.verify.mockImplementation((token, secret, callback) => callback(null, { id: 'userId' }));
+
+    await handleEmbeddingRequest(req, res);
+
+    expect(logger.error).toHaveBeenCalledWith("Failed to generate text embeddings due to network issues:", expect.anything());
+    expect(res.status).toHaveBeenCalledWith(503);
+    expect(res.send).toHaveBeenCalledWith({ message: 'Service Unavailable: Failed to connect to OpenAI API due to network issues.' });
+  });
 });
