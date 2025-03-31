@@ -24,7 +24,7 @@
   "homepage": "https://github.com/yourusername/smartapihub#readme",
   "private": false,
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^5.0.0",
     "jsonwebtoken": "^9.0.0",
     "axios": "^1.0.0",
     "dotenv": "^16.0.0"
